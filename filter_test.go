@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	"path/filepath"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -29,7 +31,7 @@ func TestIsTarget(t *testing.T) {
 	}
 
 	for idx, f := range factors {
-		fmt.Printf("No.%02d", idx)
+		fmt.Printf("No.%02d", idx+1)
 		assert.Equal(t, f.expected, IsTarget(f.path, f.out, f.in))
 	}
 }
@@ -57,5 +59,10 @@ func (f *InFilter) Match(path string) bool {
 }
 
 func IsTarget(path string, out OutFilter, in InFilter) bool {
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		panic(err)
+	}
+
 	return true
 }
