@@ -1,7 +1,7 @@
 target = "_sampledir"
 topdir = "_sampledir"
 tables = "tbl.txt"
-template = "tmpl.csv"
+template = "tmpl.md"
 
 [filter]
 out = ["vendor",".*test.*"]
