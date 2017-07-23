@@ -1,0 +1,8 @@
+target = "_sampledir"
+topdir = "_sampledir"
+tables = "tbl.txt"
+template = "tmpl.csv"
+
+[filter]
+out = ["vendor",".*test.*"]
+in = ["in_dir",".*\\.go",".*\\.toml"]

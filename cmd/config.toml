@@ -1,8 +1,0 @@
-target = "../_sampledir"
-tables = "tbl.txt"
-
-[filter]
-outdir = ["vendor"]
-outfile = [".*test.*"]
-indir = ["in_dir"]
-infile = [".*\\.go",".*\\.toml"]
