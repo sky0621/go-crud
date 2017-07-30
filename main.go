@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"flag"
 	"fmt"
 	"html/template"
@@ -54,8 +55,17 @@ func main() {
 	//fmt.Println(result.Bodies)
 	//fmt.Println("##################################################")
 	for idx, body := range result.Bodies {
-		paths := strings.Split(body[0], "\\")
-		proj = paths[1]
+		paths := strings.Split(body[0], string(os.PathSeparator))
+		projIdx := -1
+		for idx, p := range paths {
+			if p == config.Topdir {
+				projIdx = idx + 1
+			}
+		}
+		if projIdx == -1 {
+			panic(errors.New("No Target Directory"))
+		}
+		proj = paths[projIdx]
 		oxAry := body[1:]
 
 		if proj != breakProj {
