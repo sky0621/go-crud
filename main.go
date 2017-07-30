@@ -45,42 +45,45 @@ func main() {
 		panic(err)
 	}
 
-	//breakProj := ""
-	//breakOxAry := make([]string, len(result.Headers)-1)
-	//
-	//editBodies := [][]string{}
-	//proj := ""
-	//for idx, body := range result.Bodies {
-	//	paths := strings.Split(body[0], "\\")
-	//	proj = paths[1]
-	//	oxAry := body[1:]
-	//
-	//	if proj != breakProj {
-	//		if idx != 0 {
-	//			oneAry := []string{breakProj}
-	//			for _, bo := range breakOxAry {
-	//				oneAry = append(oneAry, bo)
-	//			}
-	//			editBodies = append(editBodies, oneAry)
-	//		}
-	//		breakProj = proj
-	//		breakOxAry = oxAry
-	//	} else {
-	//		for idx, ox := range oxAry {
-	//			if ox == "-" {
-	//				continue
-	//			}
-	//			breakOxAry[idx] = ox
-	//		}
-	//	}
-	//}
-	//oneAry := []string{breakProj}
-	//for _, bo := range breakOxAry {
-	//	oneAry = append(oneAry, bo)
-	//}
-	//editBodies = append(editBodies, oneAry)
-	//
-	//result.Bodies = editBodies
+	breakProj := ""
+	breakOxAry := make([]string, len(result.Headers)-1)
+
+	editBodies := [][]string{}
+	proj := ""
+	//fmt.Println("##################################################")
+	//fmt.Println(result.Bodies)
+	//fmt.Println("##################################################")
+	for idx, body := range result.Bodies {
+		paths := strings.Split(body[0], "\\")
+		proj = paths[1]
+		oxAry := body[1:]
+
+		if proj != breakProj {
+			if idx != 0 {
+				oneAry := []string{breakProj}
+				for _, bo := range breakOxAry {
+					oneAry = append(oneAry, bo)
+				}
+				editBodies = append(editBodies, oneAry)
+			}
+			breakProj = proj
+			breakOxAry = oxAry
+		} else {
+			for idx, ox := range oxAry {
+				if ox == "-" {
+					continue
+				}
+				breakOxAry[idx] = ox
+			}
+		}
+	}
+	oneAry := []string{breakProj}
+	for _, bo := range breakOxAry {
+		oneAry = append(oneAry, bo)
+	}
+	editBodies = append(editBodies, oneAry)
+
+	result.Bodies = editBodies
 
 	tmpl := template.Must(template.ParseFiles(config.Template))
 	buf := &bytes.Buffer{}
