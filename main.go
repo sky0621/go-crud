@@ -12,6 +12,10 @@ import (
 	"regexp"
 	"strings"
 
+	"time"
+
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/spf13/viper"
 )
 
@@ -24,21 +28,37 @@ func main() {
 
 	config := NewConfig()
 
-	fp, err := os.Open(config.Tables)
+	//fp, err := os.Open(config.Tables)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//defer func() {
+	//	if fp != nil {
+	//		fp.Close()
+	//	}
+	//}()
+	dsn := fmt.Sprintf(config.DB, os.Getenv("MYSQL_USER"), os.Getenv("MYSQL_PASS"), os.Getenv("MYSQL_SCHEMA"))
+	//fmt.Println(dsn)
+	db, err := gorm.Open("mysql", dsn)
+	//db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@/sakila?charset=utf8&parseTime=True&loc=Local", os.Getenv("MYSQL_USER"), os.Getenv("MYSQL_PASS")))
 	if err != nil {
 		panic(err)
 	}
-	defer func() {
-		if fp != nil {
-			fp.Close()
-		}
-	}()
+	defer db.Close()
+
+	var res []InformationSchema
+	db.Raw(fmt.Sprintf("SELECT table_name FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` = '%s' ORDER BY table_name", os.Getenv("MYSQL_SCHEMA"))).Scan(&res)
+	//db.Raw("SELECT table_name FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` = 'sakila' ORDER BY table_name").Scan(&res)
+	//fmt.Println(res)
 
 	result.Headers = append(result.Headers, "FilePath")
 
-	scanner := bufio.NewScanner(fp)
-	for scanner.Scan() {
-		result.Headers = append(result.Headers, scanner.Text())
+	//scanner := bufio.NewScanner(fp)
+	//for scanner.Scan() {
+	//	result.Headers = append(result.Headers, scanner.Text())
+	//}
+	for _, t := range res {
+		result.Headers = append(result.Headers, t.TableName)
 	}
 
 	err = filepath.Walk(config.Target, Apply)
@@ -150,13 +170,15 @@ func Apply(path string, info os.FileInfo, err error) error {
 }
 
 type Result struct {
-	Headers []string
-	Bodies  [][]string
+	Datetime string
+	Headers  []string
+	Bodies   [][]string
 }
 
 var result = &Result{
-	Headers: []string{},
-	Bodies:  [][]string{},
+	Datetime: time.Now().Format("2006-01-02 15:04"),
+	Headers:  []string{},
+	Bodies:   [][]string{},
 }
 
 // Config ...
@@ -165,6 +187,7 @@ type Config struct {
 	Topdir   string
 	Tables   string
 	Template string
+	DB       string
 	Filter   *FilterConfig
 }
 
@@ -175,6 +198,7 @@ func NewConfig() *Config {
 		Topdir:   viper.GetString("topdir"),
 		Tables:   viper.GetString("tables"),
 		Template: viper.GetString("template"),
+		DB:       viper.GetString("db"),
 		Filter:   NewFilterConfig(),
 	}
 }
@@ -238,4 +262,8 @@ func (m *FilterManager) IsTarget(path string, info os.FileInfo) bool {
 	}
 
 	return false
+}
+
+type InformationSchema struct {
+	TableName string `gorm:"column:table_name"`
 }
