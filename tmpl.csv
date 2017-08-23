@@ -1,3 +1,0 @@
-{{range .Headers}}{{.}},{{end}}
-{{range .Bodies}}{{range .}}{{.}},{{end}}
-{{end}}

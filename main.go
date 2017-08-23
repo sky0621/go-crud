@@ -21,26 +21,15 @@ import (
 
 // TODO 機能実現スピード最優先での実装なので要リファクタ
 func main() {
-	cfg := flag.String("config", "config.toml", "Config File")
+	cfg := flag.String("f", "config.toml", "Config File")
 	flag.Parse()
 
 	ReadConfig(*cfg)
 
 	config := NewConfig()
 
-	//fp, err := os.Open(config.Tables)
-	//if err != nil {
-	//	panic(err)
-	//}
-	//defer func() {
-	//	if fp != nil {
-	//		fp.Close()
-	//	}
-	//}()
 	dsn := fmt.Sprintf(config.DB, os.Getenv("MYSQL_USER"), os.Getenv("MYSQL_PASS"), os.Getenv("MYSQL_SCHEMA"))
-	//fmt.Println(dsn)
 	db, err := gorm.Open("mysql", dsn)
-	//db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@/sakila?charset=utf8&parseTime=True&loc=Local", os.Getenv("MYSQL_USER"), os.Getenv("MYSQL_PASS")))
 	if err != nil {
 		panic(err)
 	}
@@ -48,15 +37,9 @@ func main() {
 
 	var res []InformationSchema
 	db.Raw(fmt.Sprintf("SELECT table_name FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` = '%s' ORDER BY table_name", os.Getenv("MYSQL_SCHEMA"))).Scan(&res)
-	//db.Raw("SELECT table_name FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` = 'sakila' ORDER BY table_name").Scan(&res)
-	//fmt.Println(res)
 
 	result.Headers = append(result.Headers, "FilePath")
 
-	//scanner := bufio.NewScanner(fp)
-	//for scanner.Scan() {
-	//	result.Headers = append(result.Headers, scanner.Text())
-	//}
 	for _, t := range res {
 		result.Headers = append(result.Headers, t.TableName)
 	}
@@ -71,9 +54,6 @@ func main() {
 
 	editBodies := [][]string{}
 	proj := ""
-	//fmt.Println("##################################################")
-	//fmt.Println(result.Bodies)
-	//fmt.Println("##################################################")
 	for idx, body := range result.Bodies {
 		paths := strings.Split(body[0], string(os.PathSeparator))
 		projIdx := -1
