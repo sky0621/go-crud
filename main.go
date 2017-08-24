@@ -28,15 +28,14 @@ func main() {
 
 	config := NewConfig()
 
-	dsn := fmt.Sprintf(config.DB, os.Getenv("MYSQL_USER"), os.Getenv("MYSQL_PASS"), os.Getenv("MYSQL_SCHEMA"))
-	db, err := gorm.Open("mysql", dsn)
+	db, err := gorm.Open("mysql", config.Dsn)
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
 
 	var res []InformationSchema
-	db.Raw(fmt.Sprintf("SELECT table_name FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` = '%s' ORDER BY table_name", os.Getenv("MYSQL_SCHEMA"))).Scan(&res)
+	db.Raw(fmt.Sprintf("SELECT table_name FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` = '%s' ORDER BY table_name", config.DbName)).Scan(&res)
 
 	result.Headers = append(result.Headers, "FilePath")
 
@@ -165,9 +164,9 @@ var result = &Result{
 type Config struct {
 	Target   string
 	Topdir   string
-	Tables   string
 	Template string
-	DB       string
+	Dsn      string
+	DbName   string
 	Filter   *FilterConfig
 }
 
@@ -176,9 +175,9 @@ func NewConfig() *Config {
 	return &Config{
 		Target:   viper.GetString("target"),
 		Topdir:   viper.GetString("topdir"),
-		Tables:   viper.GetString("tables"),
 		Template: viper.GetString("template"),
-		DB:       viper.GetString("db"),
+		Dsn:      viper.GetString("dsn"),
+		DbName:   viper.GetString("dbname"),
 		Filter:   NewFilterConfig(),
 	}
 }

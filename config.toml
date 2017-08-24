@@ -1,8 +1,8 @@
 target = "_sampledir"
 topdir = "_sampledir"
-tables = "tbl.txt"
 template = "tmpl.md"
-db = "%s:%s@/%s?charset=utf8&parseTime=True&loc=Local"
+dsn = "{user_name}:{password}@{host_name}:{port}/{db_name}?charset=utf8&parseTime=True&loc=Local"
+dbname = "{db_name}"
 
 [filter]
 out = ["vendor",".*test.*","ddl"]
