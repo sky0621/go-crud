@@ -37,6 +37,8 @@ func main() {
 	var res []InformationSchema
 	db.Raw(fmt.Sprintf("SELECT table_name FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` = '%s' ORDER BY table_name", config.DbName)).Scan(&res)
 
+	result.Branch = config.Branch
+
 	result.Headers = append(result.Headers, "FilePath")
 
 	for _, t := range res {
@@ -149,6 +151,7 @@ func Apply(path string, info os.FileInfo, err error) error {
 }
 
 type Result struct {
+	Branch   string
 	Datetime string
 	Headers  []string
 	Bodies   [][]string
@@ -167,6 +170,7 @@ type Config struct {
 	Template string
 	Dsn      string
 	DbName   string
+	Branch   string
 	Filter   *FilterConfig
 }
 
@@ -178,6 +182,7 @@ func NewConfig() *Config {
 		Template: viper.GetString("template"),
 		Dsn:      viper.GetString("dsn"),
 		DbName:   viper.GetString("dbname"),
+		Branch:   viper.GetString("branch"),
 		Filter:   NewFilterConfig(),
 	}
 }
